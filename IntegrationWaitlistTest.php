@@ -11,6 +11,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 
 class IntegrationWaitlistTest extends TestCase
 {
+    use WithFaker, DatabaseTransactions;
 
     private $validEmails = [
         'simple@example.com',
@@ -34,8 +35,6 @@ class IntegrationWaitlistTest extends TestCase
         'this\ still\"not\\allowed@example.com',
     ];
 
-    use WithFaker, DatabaseTransactions;
-
     function test_user_can_subscribe_to_a_waitlist()
     {
         Mail::fake();
@@ -44,7 +43,7 @@ class IntegrationWaitlistTest extends TestCase
 
         $response = $this->post(route('subscribe'), compact('email'));
 
-        Mail::assertQueued(SubscriberJoined::class, function ($mail){
+        Mail::assertSent(SubscriberJoined::class, function ($mail){
             return $mail->hasTo(config('mail.from.address'));
         });
 
@@ -53,7 +52,7 @@ class IntegrationWaitlistTest extends TestCase
         $response->assertRedirect('subscribed');
     }
 
-    function test_email_required_filter()
+    function test_user_cant_subscribe_an_empty_email()
     {
 
         $response = $this->json('POST',route('subscribe'));
@@ -63,17 +62,17 @@ class IntegrationWaitlistTest extends TestCase
 
     }
 
-    function test_valid_emails()
+    function test_user_can_subscribe_valid_emails()
     {
         $this->assertValidEmail();
     }
 
-    function test_invalid_emails()
+    function test_user_cant_subscribe_invalid_emails()
     {
         $this->assertValidEmail(false);
     }
 
-    function test_email_unique_filter()
+    function test_user_cant_subscribe_an_existing_email()
     {
         $email = $this->faker->safeEmail();
 

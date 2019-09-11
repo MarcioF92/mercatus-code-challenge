@@ -4,13 +4,14 @@ namespace Tests\Browser;
 
 use App\Models\Subscriber;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\DuskTestCase;
 use Laravel\Dusk\Browser;
 
 class BrowserWaitlistTest extends DuskTestCase
 {
-    use DatabaseTransactions;
+    use WithFaker, RefreshDatabase;
 
     private $validEmails = [
         'simple@example.com',
@@ -34,9 +35,7 @@ class BrowserWaitlistTest extends DuskTestCase
         'this\ still\"not\\allowed@example.com',
     ];
 
-    use WithFaker;
-
-    function test_a_user_can_subscribe()
+    function test_user_can_subscribe()
     {
 
         $email = $this->faker->safeEmail();
@@ -60,7 +59,7 @@ class BrowserWaitlistTest extends DuskTestCase
 
     function test_user_cant_subscribe_an_existing_email()
     {
-        $email = $this->faker->safeEmail();
+        $email = $this->faker->unique()->safeEmail();
 
         Subscriber::create(compact('email'));
 
@@ -111,8 +110,8 @@ class BrowserWaitlistTest extends DuskTestCase
             $browser->visit(route('waitlist'))
                 ->type('email', $email)
                 ->doubleClick(__('Request early access'))
-                ->assertRouteIs('waitlist');
-                //->assertSee('The email has already been taken.');
+                ->assertRouteIs('waitlist')
+                ->assertSee('The email has already been taken.');
         });
     }
 }

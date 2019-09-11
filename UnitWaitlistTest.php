@@ -4,11 +4,8 @@ namespace Tests\Unit;
 
 use App\Models\Subscriber;
 use App\User;
-use Faker\Factory;
-use Tests\FeatureTestCase;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class UnitWaitlistTest extends TestCase
 {
